@@ -1,0 +1,33 @@
+body {
+	background-image: url("tunnel1.jpg");
+}
+
+div {
+	margin-bottom:60px;
+	margin-top:80px;
+	/*background-color: rgba(85, 107, 47,0.1);*/
+}
+
+.col {
+    background-color: rgba(85, 107, 47,0.4);
+}
+
+h1,h2,h3,h4,h5,p {
+	color: azure;
+}
+
+.carousel-inner img {
+	width: 70%;
+	height: 70%;
+	display: block;
+    margin: 0 auto;
+}
+
+.carousel-control-prev,.carousel-control-next {
+	color: azure;
+}
+
+.form-inline {
+	float: right;
+}
+
