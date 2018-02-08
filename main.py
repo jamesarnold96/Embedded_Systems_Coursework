@@ -1,5 +1,5 @@
-import time
-import json
+import utime
+import ujson
 import network
 import machine
 from umqtt.simple import MQTTClient
@@ -43,17 +43,17 @@ def connect_wifi(name, password):
     ap_if.active(False)
     sta_if.active(True)
     sta_if.connect(name, password)
-    time.sleep_ms (2000)
+    utime.sleep_ms (2000)
 
     while(not sta_if.isconnected()):
         print ("connection to WiFi failed, retrying in 3 seconds.")
         blue_led.value(0)
-        time.sleep_ms(1000)
+        utime.sleep_ms(1000)
         sta_if.connect(name, password)
         blue_led.value(1)
-        time.sleep_ms(2000)
+        utime.sleep_ms(2000)
 
-    print ("connection to WiFi successful, sending message every 0.5 second.")
+    print ("connection to WiFi successful.")
     blue_led.value(0)
     #MQTT setup
     client.connect()
@@ -89,6 +89,19 @@ def sensor_read():
     lux = sensor_calc(channel0, channel1)
     print (lux)
     return lux
+
+#---------------------------------------------------------------
+def math_keep10(datalst, data):
+    l = len(datalst)
+    datalst.append(data)
+    if l < 11:
+        return datalst
+    else:
+        return datalst[l-10:l]
+
+def math_listavg(datalst):
+    return sum(datalst) / len(datalst)
+
 #---------------------------------------------------------------
 #motor move should change direction when one edge is reached
 #duty cycle range may need to be re-tested
@@ -107,10 +120,10 @@ def motor_move(current_duty, direction):
 
 def motor_track(current_duty, direction, old_lux):
     if 21 <= current_duty <= 120:
-        time.sleep_ms(500)
+        utime.sleep_ms(500)
         current_duty = motor_move(current_duty, direction)
         new_lux = sensor_read()
-        time.sleep_ms(500)
+        utime.sleep_ms(500)
         if new_lux <= old_lux:
             direction = not direction
         else:
@@ -120,11 +133,24 @@ def motor_track(current_duty, direction, old_lux):
 def msg_blink(topic, msg):
     if msg == b'Hello ESP8266':
         blue_led.value(0)
-        time.sleep_ms(500)
+        utime.sleep_ms(500)
         blue_led.value(1)
 
 def msg_print(topic, msg):
-    print(msg)
+    print(str(msg))
+    data = ujson.loads(msg.decode('utf-8'))
+    k = data['inst']
+    if (k == 'blink'):
+        blue_led.value(1)
+        utime.sleep_ms(100)
+        blue_led.value(0)
+    elif (k == 'reset'):
+        #current_duty = 57
+        #servo.duty(current_duty)
+        print("servo reset does not work yet.")
+    else:
+        print(k)
+
 
 #---------------------------------------------------------------
 #power up
@@ -136,30 +162,35 @@ blue_led.value(1)
 servo.duty(INITIAL_DUTY)
 current_duty = INITIAL_DUTY
 lux = sensor_read()
+luxlst = [lux]
 
-#connect_wifi('EEERover','exhibition')
+connect_wifi('EEERover','exhibition')
 #---------------------------------------------------------------
 #main loop
 while True:
-
-    #read physcial input
-
     #control motor
     (current_duty, direction, lux) = motor_track(current_duty, direction, lux)
+
+    #find average
+    luxlst = math_keep10(luxlst, lux)
+    luxavg = math_listavg(luxlst)
+
     #check if still connected (donno if this code works yet)
-    #if (not sta_if.isconnected()):
-    #    blue_led.value(1)
-    #    connect_wifi('EEERover','exhibition')
+    if (not sta_if.isconnected()):
+        blue_led.value(1)
+        connect_wifi('EEERover','exhibition')
 
     #send message
-    #payload = json.dumps({'name':'luminous flux',
-    #                        'brightness':lux,
-    #                        'direction':direction,
-    #                        'duty': current_duty})
-    #client.publish('esys/JEDI/', bytes(payload,'utf-8'))
+    payload = ujson.dumps({'name':'neZOOMi-chan',
+                            'time':utime.ticks_ms(),
+                            'brightness':lux,
+                            'avglight':luxavg,
+                            'direction':direction,
+                            'duty': current_duty})
+    client.publish('esys/JEDI/', bytes(payload,'utf-8'))
 
     #read message
-    #client.check_msg()
+    client.check_msg()
 
-    time.sleep_ms(100)
+    utime.sleep_ms(100)
 #---------------------------------------------------------------

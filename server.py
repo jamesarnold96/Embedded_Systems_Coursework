@@ -1,4 +1,5 @@
 import paho.mqtt.client as mqtt
+import json
 import time
 
 # The callback for when the client receives a CONNACK response from the server.
@@ -12,6 +13,12 @@ def on_connect(client, userdata, flags, rc):
 # The callback for when a PUBLISH message is received from the server.
 def on_message(client, userdata, msg):
     print(msg.topic+" "+str(msg.payload))
+    data = json.loads(msg.payload.decode('utf-8'))
+    # might need errror checks for this
+    print(str(data['brightness'])
+    		+ ' at: ' + str(data['time'])
+    		+ ' with ' + str(data['duty']))
+    # a function to collect the data and plot it in time
 
 client = mqtt.Client()
 client.on_connect = on_connect
@@ -19,12 +26,16 @@ client.on_message = on_message
 
 client.connect("192.168.0.10", 1883)
 
+rawin = ''
+
 # Blocking call that processes network traffic, dispatches callbacks and
 # handles reconnecting.
 # Other loop*() functions are available that give a threaded interface and a
 # manual interface.
 client.loop_start()
-for i in range(1,10):
-	time.sleep(1)
-	client.publish('esys/JEDI/Server/', 'Hello ESP8266: '+str(i))
+while (rawin != 'END'):
+	rawin = input("\nPlease enter a command: \n")
+	payload = json.dumps({'name': 'Dai lo',
+						'inst':rawin,})
+	client.publish('esys/JEDI/Server/', bytes(payload,'utf-8'))
 client.loop_stop(force=False)
