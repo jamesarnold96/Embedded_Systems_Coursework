@@ -30,12 +30,14 @@ STEP_SIZE = 8
 direction = True
 
 #---------------------------------------------------------------
-# class tracker_state:
-#     def __init__(self, direction, duty, lux):
-#         self.direction = direction
-#         self.duty = duty
-#         self.lux = lux
-
+#state of motor
+class State(object):
+    def __init__(self, direction, duty, luxlst):
+        self.direction = direction
+        self.duty = duty
+        self.luxlst = luxlst
+    def __str__(self):
+        return str(self.direction)+" "+str(self.duty)+" "+str(self.luxlst)
 #---------------------------------------------------------------
 def connect_wifi(name, password):
     #setup connection
@@ -60,6 +62,7 @@ def connect_wifi(name, password):
     client.set_callback(msg_print)
     client.subscribe('esys/JEDI/Server/')
 #---------------------------------------------------------------
+#convert raw data to lux, formula from data sheet
 def sensor_calc(ch0, ch1):
     if ch0 == 0:
         return float('nan')
@@ -91,13 +94,13 @@ def sensor_read():
     return lux
 
 #---------------------------------------------------------------
+#remove from beginning and add new element to end
 def math_keep10(datalst, data):
-    l = len(datalst)
     datalst.append(data)
-    if l < 11:
+    if len(datalst) < 11:
         return datalst
     else:
-        return datalst[l-10:l]
+        return datalst[-10:]
 
 def math_listavg(datalst):
     return sum(datalst) / len(datalst)
@@ -105,30 +108,31 @@ def math_listavg(datalst):
 #---------------------------------------------------------------
 #motor move should change direction when one edge is reached
 #duty cycle range may need to be re-tested
-#a mutable class should be passed around this group of functions
-def motor_move(current_duty, direction):
+def motor_move(duty, direction):
     if direction:
-        current_duty += STEP_SIZE
+        duty += STEP_SIZE
     else:
-        current_duty -= STEP_SIZE
-    if current_duty < 21:
-        current_duty = 21
-    if current_duty > 120:
-        current_duty = 120
-    servo.duty(current_duty)
-    return current_duty
+        duty -= STEP_SIZE
+    if duty < 21:
+        duty = 21
+    if duty > 120:
+        duty = 120
+    servo.duty(duty)
+    return duty
 
-def motor_track(current_duty, direction, old_lux):
-    if 21 <= current_duty <= 120:
-        utime.sleep_ms(500)
-        current_duty = motor_move(current_duty, direction)
-        new_lux = sensor_read()
-        utime.sleep_ms(500)
-        if new_lux <= old_lux:
-            direction = not direction
+def motor_track(state):
+    if 21 <= state.duty <= 120:
+        utime.sleep_ms(300)
+        state.duty = motor_move(state.duty, state.direction)
+        state.luxlst = math_keep10(state.luxlst, sensor_read())
+        utime.sleep_ms(300)
+        # think of better way to set threshold to turn around
+        # or just don't move if there isn't too much difference
+        if (state.luxlst[-2] - state.luxlst[-1]) >= 2:
+            state.direction = not state.direction
         else:
             pass
-        return (current_duty, direction, new_lux)
+        return state
 #---------------------------------------------------------------
 def msg_blink(topic, msg):
     if msg == b'Hello ESP8266':
@@ -159,21 +163,20 @@ i2c.writeto_mem(0x39,0xA0,bytearray([0x03]))
 #initialisation
 red_led.value(1)
 blue_led.value(1)
+#this line here is weird
 servo.duty(INITIAL_DUTY)
 current_duty = INITIAL_DUTY
-lux = sensor_read()
-luxlst = [lux]
+motor_state = State(True, INITIAL_DUTY, [sensor_read()])
 
 connect_wifi('EEERover','exhibition')
 #---------------------------------------------------------------
 #main loop
 while True:
     #control motor
-    (current_duty, direction, lux) = motor_track(current_duty, direction, lux)
-
+    motor_state = motor_track(motor_state)
+    print(motor_state)
     #find average
-    luxlst = math_keep10(luxlst, lux)
-    luxavg = math_listavg(luxlst)
+    luxavg = math_listavg(motor_state.luxlst)
 
     #check if still connected (donno if this code works yet)
     if (not sta_if.isconnected()):
@@ -183,10 +186,10 @@ while True:
     #send message
     payload = ujson.dumps({'name':'neZOOMi-chan',
                             'time':utime.ticks_ms(),
-                            'brightness':lux,
+                            'brightness':motor_state.luxlst[-1],
                             'avglight':luxavg,
-                            'direction':direction,
-                            'duty': current_duty})
+                            'direction':motor_state.direction,
+                            'duty': motor_state.duty})
     client.publish('esys/JEDI/', bytes(payload,'utf-8'))
 
     #read message
