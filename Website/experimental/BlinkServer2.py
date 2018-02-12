@@ -65,6 +65,30 @@ def getData():
         upload(controlIns, controlData)
     return 'Input recieved'
 
+# Displays a table of the last 20 data entries
+@get('/table')
+def displayTable():
+    with open('sensorData.json') as f:
+        # Read sensor data
+        sensorData = json.loads(f.read())
+        tableTxt = """
+          <table class="table table-dark table-striped">
+            <thead>
+              <tr>
+                <th>Time</th>
+                <th>Brightness(Lux)</th>
+                <th>Duty</th>
+              </tr>
+            </thead>
+            <tbody>"""
+        # loop over last 20 list items to build table
+        for i in range(20):
+            latest = sensorData[len(sensorData) - i]
+            tableTxt += '<tr><td>'+ latest['time'] + '</td><td>'\
+            + latest['brightness'] +  '</td><td>' + latest['duty'] + '</td></tr>'
+        tableTxt += '</tbody></table>'
+        return tableTxt    
+
 # directs a root request to the home page
 @route('/testing')
 def home_page():
