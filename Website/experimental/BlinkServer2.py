@@ -24,7 +24,7 @@ def on_message(client, userdata, msg):
     		+ ' at: ' + str(data['time'])
     		+ ' with ' + str(data['duty']))
     # opens json file to store data (as a list)
-    with open('sensorData.json') as f:
+    with open('/testing/sensorData.json') as f:
         # Read sensor data
         sensorData = json.loads(f.read())
         # Add the new data to the list
@@ -46,7 +46,7 @@ override_state = False;
 # main program
 def upload(controlIns, controlData):
     print("Connection Successful!")
-    payload = json.dumps({'name': 'Dai lo','inst':controlIns,'state':controlData})
+    payload = json.dumps({'inst':controlIns,'state':controlData})
     client.publish('esys/JEDI/Server/', bytes(payload,'utf-8'))
 
 # receives button input data from the website 
@@ -68,7 +68,7 @@ def getData():
 # Displays a table of the last 20 data entries
 @get('/table')
 def displayTable():
-    with open('sensorData.json') as f:
+    with open('/testing/.json') as f:
         # Read sensor data
         sensorData = json.loads(f.read())
         tableTxt = """

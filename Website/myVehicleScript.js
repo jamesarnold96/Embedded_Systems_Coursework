@@ -5,31 +5,24 @@ var steerState = false;
 
 $(document).ready(function(){
 	// Hides controls, as the the "override" instructino hasn't been made yet	
-	$data_table
 	$("#btn_override").click(function(){
 		$(this).toggleClass("active");
 		$(".controls").toggle("slow","swing");
 		overrideState = !overrideState;
 		// Posts button state to server
-		$.get("/control?control=override&value=" + overrideState,function(data,status){
-			alert("Data: " + data + "\nStatus: " + status);
-		})
+		$.get("/control?control=override&value=" + overrideState);
 	});
 	$("#blue_led").click(function(){
 		$(this).toggleClass("active");
 		blueState = !blueState;
 		// Posts button state to server
-		$.get("/control?control=blueLED&value=" + blueState,function(data,status){
-			alert("Data: " + data + "\nStatus: " + status);
-		})
+		$.get("/control?control=blueLED&value=" + blueState);
 	});
 	$("#red_led").click(function(){
 		$(this).toggleClass("active");
 		redState = !redState;
 		// Posts button state to server
-		$.get("/control?control=redLED&value=" + redState,function(data,status){
-			alert("Data: " + data + "\nStatus: " + status);
-		})
+		$.get("/control?control=redLED&value=" + redState)
 	});	
 	$("#btn_steer").click(function(){
 		$(this).toggleClass("active");
@@ -38,7 +31,7 @@ $(document).ready(function(){
 	);
 	$("#tbl_refresh").click(function(){
 		$.get("/table",function(data,status){
-			$(".dataTable").html(data)
+			$(".dataTable").html(data);
 		})			
 	})
 	// Detects arrow key presses
@@ -63,6 +56,7 @@ $(document).ready(function(){
 				
 				default: break;
 			}
+			event.preventDefault(); // prevent the default action (scroll / move caret)
 		}
 	})
 	
@@ -87,6 +81,7 @@ $(document).ready(function(){
 				
 				default: break;
 			}
+			event.preventDefault(); // prevent the default action (scroll / move caret)
 		}
 	})
 });
