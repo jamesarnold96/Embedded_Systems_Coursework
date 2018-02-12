@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+<head>	
   <title>My Vehicle</title>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -9,6 +9,7 @@
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+  <script src="myVehicleScript.js"></script>
 </head>
 
 <body>
@@ -21,6 +22,11 @@
     <li class="nav-item">
       <a class="nav-link" href="myvehicle.html">My Vehicle</a>
     </li>
+	<li class="nav-item">
+	  <a class="nav-link" href="#">About Us</a> 
+	
+	<li class="nav-item">
+	  <a class="nav-link" href="#">Market Research</a>
   </ul>
   <form class="form-inline" action="/action_page.php">
     <input class="form-control mr-sm-2" type="text" placeholder="Search">
@@ -30,9 +36,14 @@
 
 <div class="container-fluid" style="margin-top:80px">
   <h1 class="display-1">My Vehicle<br /><small>Control it here</small></h3>
-  <p>Hopefully, if James gets his act together, this bit will blink an LED</p>
-  <button type="button" class="btn btn-primary active">Blink blue LED</button>
+  <button type="button" id="btn_override" class="btn btn-info active">Click here to override default vehicle behaviour</button>
 </div>
 
+<div class="container-fluid controls" style="margin-top:80px">
+  <p>Use these buttons to control the ESP8266's on-board LEDs</p>
+  <button type="button" id="blue_led" class="btn btn-primary active">Blink blue LED</button>
+  <button type="button" id="red_led" class="btn btn-danger active">Blink red LED</button>
+  <button type="button" id="btn_steer" class="btn btn-info active">Steer vehicle uing arrow keys</button>
+</div>
 </body>
 </html>

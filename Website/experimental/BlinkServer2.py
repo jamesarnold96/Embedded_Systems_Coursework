@@ -1,7 +1,7 @@
 #!C:\Users\james\Documents\Python\WinPython-64bit-3.6.3.0Qt5\python-3.6.3.amd64\python.exe
  
 # Uses Bottle to handle communication with the website
-from bottle import get, request
+from bottle import get, request, static_file, run, route
 
 import paho.mqtt.client as mqtt
 import json
@@ -55,3 +55,14 @@ def getData():
     elif(override_state):
         upload(controlIns, controlData)
     return 'Input recieved'
+
+@route('/testing/')
+def display_page():
+    return static_file('home.html',root='C:/Users/james/Documents/GitHub/Embedded_Systems_Coursework/Website')
+
+@route('/testing/<filename>')
+def display_page(filename):
+    return static_file(filename,root='C:/Users/james/Documents/GitHub/Embedded_Systems_Coursework/Website')
+
+# run program in 'localhost', for testing
+run(host='localhost', port=8080, debug=True)
