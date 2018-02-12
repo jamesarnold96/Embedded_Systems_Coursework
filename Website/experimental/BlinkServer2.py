@@ -48,6 +48,7 @@ def getData():
     controlIns = request.query.control
     # Button data from the frontend
     controlData = request.query.value
+    # only controls the vehicle if the 'override' instruction has been sent
     if(controlIns == 'override'):
         global override_state
         override_state = controlData
@@ -56,10 +57,12 @@ def getData():
         upload(controlIns, controlData)
     return 'Input recieved'
 
-@route('/testing/')
-def display_page():
+# directs a root request to the home page
+@route('/testing')
+def home_page():
     return static_file('home.html',root='C:/Users/james/Documents/GitHub/Embedded_Systems_Coursework/Website')
 
+# loads html files for display
 @route('/testing/<filename>')
 def display_page(filename):
     return static_file(filename,root='C:/Users/james/Documents/GitHub/Embedded_Systems_Coursework/Website')
