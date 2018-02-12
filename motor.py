@@ -16,6 +16,10 @@ i2c.writeto_mem(0x39,0xA0,bytearray([0x03]))
 
 #initialize pwm pin
 servo=machine.PWM(machine.Pin(12),freq=50)
+leftm = machine.PWM(machine.Pin(15),freq=50)
+rightm = machine.PWM(machine.Pin(13),freq=50)
+
+
 
 #issue:  pass by referenct in MP
 def motor_move(current_duty,direction):
@@ -38,7 +42,7 @@ def sensor_read():
 
     ratio = float(channel1/channel0)
 
-    if 0< ratio <=0.5:
+    if 0<= ratio <=0.5:
         lux =  0.0304*channel0 - 0.062*channel0*(ratio**1.4)
     elif 0.5 <ratio <= 0.61:
         lux = 0.0224*channel0 - 0.031*channel1
@@ -56,41 +60,58 @@ def sensor_read():
 #reset to central position
 
 current_duty = 57
-step =8
+step=18
 direction = ['AW', 'CW']
-index = 0;
+index = 0
+
+margin = 0.005
 servo.duty(57)
 while True:
-    if current_duty>=21 and current_duty<=120:
+    time.sleep_ms(200)
+    leftm.duty(230)
+    rightm.duty(230)
+    if current_duty>=21 and current_duty<=100:
         old_lux = sensor_read()
-        time.sleep_ms(500)
         if direction[index] == 'AW':
             current_duty = current_duty + step
        
         elif direction[index] == 'CW':
             current_duty = current_duty - step
-       
         servo.duty(current_duty)
+        time.sleep_ms(200)
         new_lux = sensor_read()
-        time.sleep_ms(500)
-        if new_lux <= old_lux:
+      
+        if new_lux <= old_lux - margin:
             index = ~index
             if direction[index] == 'AW':
-                current_duty = current_duty + step
+                current_duty = current_duty +step
        
             elif direction[index] == 'CW':
                 current_duty = current_duty - step
                 
-            servo.duty(current_duty)
-    elif current_duty<21 or current_duty>120:
+        servo.duty(current_duty)
+        time.sleep_ms(200)
+    elif current_duty<=21 or current_duty>=93:
         if current_duty <21:
             current_duty = current_duty+step+21-current_duty
         else:
-            current_duty = current_duty-step-current_duty+120
+            current_duty = current_duty-step-current_duty+93
             
-        print('The max lux position is out of range')
+    if current_duty < 57:
+        leftm.duty(440)
+        rightm.duty(230)
+
+    elif current_duty >57:
+        leftm.duty(230)
+        rightm.duty(480)
+    elif current_duty == 57:
+        leftm.duty(230)
+        rightm.duty(230)
+    
 
     print(current_duty)
-    time.sleep_ms(500)
+    print(leftm.duty(),rightm.duty())
+   
+
 
 
