@@ -1,7 +1,7 @@
 #!C:\Users\james\Documents\Python\WinPython-64bit-3.6.3.0Qt5\python-3.6.3.amd64\python.exe
  
 # Uses Bottle to handle communication with the website
-from bottle import Bottle, get, request
+from bottle import get, request
 
 import paho.mqtt.client as mqtt
 import json
@@ -33,27 +33,25 @@ client.on_message = on_message
 client.connect("192.168.0.10", 1883)
 client.publish('esys/JEDI/Server/', 'Connected')
 
-# Variables for the button states
-override_state = false;
-red_LED = false;
-blue_LED = false;
+override_state = False;
+
+# main program
+def upload(controlIns, controlData):
+    print("Connection Successful!")
+    payload = json.dumps({'name': 'Dai lo','inst':controlIns,'state':controlData})
+    client.publish('esys/JEDI/Server/', bytes(payload,'utf-8'))
 
 # receives button input data from the website 
 @get('/control')   
 def getData():
-    blue_LED = request.query.buttonState
-    webState = webData.getvalue('buttonState')
+    # Instruction from the frontend
+    controlIns = request.query.control
+    # Button data from the frontend
+    controlData = request.query.value
+    if(controlIns == 'override'):
+        global override_state
+        override_state = controlData
+        upload(controlIns, controlData)
+    elif(override_state):
+        upload(controlIns, controlData)
     return 'Input recieved'
-
-# main program
-def upload():
-    if __name__ == "__main__":
-        try:
-            webState = getData()
-            if blue_LED == "true": # JS true != Python True
-                print("Connection Successful!")
-                rawin = 'blink'
-                payload = json.dumps({'name': 'Dai lo','inst':rawin,})
-                client.publish('esys/JEDI/Server/', bytes(payload,'utf-8'))
-        except:
-            cgi.print_exception()
