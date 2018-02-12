@@ -23,6 +23,14 @@ def on_message(client, userdata, msg):
     print(str(data['brightness'])
     		+ ' at: ' + str(data['time'])
     		+ ' with ' + str(data['duty']))
+    # opens json file to store data (as a list)
+    with open('sensorData.json') as f:
+        # Read sensor data
+        sensorData = json.loads(f.read())
+        # Add the new data to the list
+        sensorData.append(data)
+        # Write the data to the json file
+        f.write(json.dumps(sensorData))
     # a function to collect the data and plot it in time
 
 

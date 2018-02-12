@@ -7,7 +7,7 @@ $(document).ready(function(){
 	// Hides controls, as the the "override" instructino hasn't been made yet	
 	$("#btn_override").click(function(){
 		$(this).toggleClass("active");
-		$(".controls").toggle(/*"slow","swing"*/);
+		$(".controls").toggle("slow","swing");
 		overrideState = !overrideState;
 		// Posts button state to server
 		$.get("/control?control=override&value=" + overrideState,function(data,status){
@@ -74,7 +74,7 @@ $(document).ready(function(){
 				break;
 				
 				case 39: // right
-				$.get("/control?control=up&value=false")
+				$.get("/control?control=right&value=false")
 				break;
 				
 				case 40: // down
