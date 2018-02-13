@@ -5,8 +5,7 @@ import machine
 from umqtt.simple import MQTTClient
 
 #TODO list
-#define a mutable class with all state parameters
-#wifi connection temporarily commented out for motor testing 
+#
 #---------------------------------------------------------------
 #declarations
 #communication
@@ -23,21 +22,30 @@ client = MQTTClient(CLIENT_ID, BROKER_ADDRESS)
 red_led = machine.Pin(0, machine.Pin.OUT)
 blue_led = machine.Pin(2, machine.Pin.OUT)
 
-#motor
+#servo
 servo = machine.PWM(machine.Pin(12),freq=50)
 INITIAL_DUTY = 57
-STEP_SIZE = 8
+STEP_SIZE = 18
 direction = True
+MARGIN = 0.005
+
+#motor
+leftm = machine.PWM(machine.Pin(15),freq=50)
+rightm = machine.PWM(machine.Pin(13),freq=50)
 
 #---------------------------------------------------------------
-#state of motor
+#state of servo
 class State(object):
     def __init__(self, direction, duty, luxlst):
         self.direction = direction
         self.duty = duty
         self.luxlst = luxlst
     def __str__(self):
-        return str(self.direction)+" "+str(self.duty)+" "+str(self.luxlst)
+        if direction:
+            dir = 'Right '
+        else:
+            dir = 'Left '
+        return dir+str(self.duty)+" "+str(self.luxlst)
 #---------------------------------------------------------------
 def connect_wifi(name, password):
     #setup connection
@@ -59,7 +67,7 @@ def connect_wifi(name, password):
     blue_led.value(0)
     #MQTT setup
     client.connect()
-    client.set_callback(msg_print)
+    client.set_callback(msg_callback)
     client.subscribe('esys/JEDI/Server/')
 #---------------------------------------------------------------
 #convert raw data to lux, formula from data sheet
@@ -69,7 +77,7 @@ def sensor_calc(ch0, ch1):
 
     ratio = float(ch1/ch0)
 
-    if 0 < ratio <= 0.5:
+    if 0 <= ratio <= 0.5:
         return 0.0304*ch0 - 0.062*ch0*(ratio**1.4)
     elif 0.5 <ratio <= 0.61:
         return 0.0224*ch0 - 0.031*ch1
@@ -104,57 +112,137 @@ def math_keep10(datalst, data):
 
 def math_listavg(datalst):
     return sum(datalst) / len(datalst)
-
 #---------------------------------------------------------------
-#motor move should change direction when one edge is reached
+#motor move
+def motor_move(direction):
+    if direction == 'left':
+        leftm.duty(440)
+        rightm.duty(230)
+    elif direction == 'right':
+        leftm.duty(230)
+        rightm.duty(480)
+    elif direction == 'forward':
+        leftm.duty(230)
+        rightm.duty(230)
+    elif direction == 'stop':
+        leftm.duty(0)
+        rightm.duty(0)
+    else:
+        print('MOTOR MOVE ERROR')
+
+#possible states:
+#left: 21, 30, 39
+#forward: 48, 57, 66
+#right: 75, 84, 93
+def motor_servocontrol(servo_state):
+    if servo_state.duty < 57:
+        motor_move('left')
+    elif servo_state.duty > 57:
+        motor_move('right')
+    elif servo_state.duty == 57:
+        motor_move('forward')
+    else:
+        print('SERVO CONTROL ERROR')
+
+def motor_overridden(r, l, f):
+    if f and not l and not r:
+        motor_move('forward')
+        print('going forward')
+    elif f and not l and r:
+        motor_move('right')
+        print('going right')
+    elif f and l and not r:
+        motor_move('left')
+        print('going left')
+    else:
+        motor_move('stop')
+        print('going nowhere')
+#---------------------------------------------------------------
+#servo move should change direction when one edge is reached
 #duty cycle range may need to be re-tested
-def motor_move(duty, direction):
+def servo_move(duty, direction):
     if direction:
         duty += STEP_SIZE
     else:
         duty -= STEP_SIZE
     if duty < 21:
         duty = 21
-    if duty > 120:
-        duty = 120
+    if duty > 93:
+        duty = 93
     servo.duty(duty)
     return duty
 
-def motor_track(state):
-    if 21 <= state.duty <= 120:
-        utime.sleep_ms(300)
-        state.duty = motor_move(state.duty, state.direction)
+def servo_track(state):
+    if 21 <= state.duty <= 93:
+        utime.sleep_ms(200)
+        state.duty = servo_move(state.duty, state.direction)
         state.luxlst = math_keep10(state.luxlst, sensor_read())
-        utime.sleep_ms(300)
+        utime.sleep_ms(200)
         # think of better way to set threshold to turn around
         # or just don't move if there isn't too much difference
-        if (state.luxlst[-2] - state.luxlst[-1]) >= 2:
+        if (state.luxlst[-2] - state.luxlst[-1]) >= MARGIN:
             state.direction = not state.direction
         else:
             pass
         return state
 #---------------------------------------------------------------
-def msg_blink(topic, msg):
-    if msg == b'Hello ESP8266':
-        blue_led.value(0)
-        utime.sleep_ms(500)
-        blue_led.value(1)
+def msg_blink(value):
+    if value == 'true':
+        red_led.value(0)
+    elif value == 'false':
+        red_led.value(1)
+    else:
+        pass
 
-def msg_print(topic, msg):
+def msg_override(value):
+    global override_mode
+    servo.duty(57)
+    servo_state = State(True, INITIAL_DUTY, [sensor_read()])
+    if value == 'true':
+        override_mode = True
+    elif value == 'false':
+        override_mode = False
+    else:
+        pass
+
+def msg_set_or(direction, value):
+    global or_forward
+    global or_left
+    global or_right
+
+    if value == 'true':
+        temp = True
+    elif value == 'false':
+        temp = False
+    else:
+        pass
+
+    if direction == 'up':
+        or_forward = temp
+    elif direction == 'left':
+        or_left = temp
+    elif direction == 'right':
+        or_right = temp
+    else:
+        pass
+
+def msg_callback(topic, msg):
     print(str(msg))
     data = ujson.loads(msg.decode('utf-8'))
     k = data['inst']
-    if (k == 'blink'):
-        blue_led.value(1)
-        utime.sleep_ms(100)
-        blue_led.value(0)
-    elif (k == 'reset'):
-        #current_duty = 57
-        #servo.duty(current_duty)
-        print("servo reset does not work yet.")
+    v = data['state']
+    #add authorisation by name field here?
+    if k == 'redLED':
+        msg_blink(v)
+    elif k == 'override':
+        msg_override(v)
+    elif k == 'up' or 'left' or 'right':
+        if override_mode:
+            msg_set_or(k, v)
+        else:
+            pass
     else:
-        print(k)
-
+        print('unrecognised instruction: '+str(k))
 
 #---------------------------------------------------------------
 #power up
@@ -163,22 +251,35 @@ i2c.writeto_mem(0x39,0xA0,bytearray([0x03]))
 #initialisation
 red_led.value(1)
 blue_led.value(1)
+override_mode = False
+or_forward = False
+or_left = False
+or_right = False
 #this line here is weird
 servo.duty(INITIAL_DUTY)
-current_duty = INITIAL_DUTY
-motor_state = State(True, INITIAL_DUTY, [sensor_read()])
+servo_state = State(True, INITIAL_DUTY, [sensor_read()])
+leftm.duty(230)
+rightm.duty(230)
 
 connect_wifi('EEERover','exhibition')
 #---------------------------------------------------------------
 #main loop
 while True:
-    #control motor
-    motor_state = motor_track(motor_state)
-    print(motor_state)
-    #find average
-    luxavg = math_listavg(motor_state.luxlst)
+    if override_mode:
+        motor_overridden(or_right, or_left, or_forward)
+        print(str(or_right)+str(or_left)+str(or_forward))
+    else:
+        #control servo
+        servo_state = servo_track(servo_state)
+        print(servo_state)
 
-    #check if still connected (donno if this code works yet)
+        #control motor
+        motor_servocontrol(servo_state)
+
+    #find average
+    luxavg = math_listavg(servo_state.luxlst)
+
+    #check if still connected
     if (not sta_if.isconnected()):
         blue_led.value(1)
         connect_wifi('EEERover','exhibition')
@@ -186,10 +287,10 @@ while True:
     #send message
     payload = ujson.dumps({'name':'neZOOMi-chan',
                             'time':utime.ticks_ms(),
-                            'brightness':motor_state.luxlst[-1],
+                            'brightness':servo_state.luxlst[-1],
                             'avglight':luxavg,
-                            'direction':motor_state.direction,
-                            'duty': motor_state.duty})
+                            'direction':servo_state.direction,
+                            'duty': servo_state.duty})
     client.publish('esys/JEDI/', bytes(payload,'utf-8'))
 
     #read message
