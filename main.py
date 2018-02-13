@@ -116,11 +116,11 @@ def math_listavg(datalst):
 #motor move
 def motor_move(direction):
     if direction == 'left':
-        leftm.duty(440)
-        rightm.duty(230)
-    elif direction == 'right':
         leftm.duty(230)
         rightm.duty(480)
+    elif direction == 'right':
+        leftm.duty(440)
+        rightm.duty(230)
     elif direction == 'forward':
         leftm.duty(230)
         rightm.duty(230)
@@ -147,16 +147,16 @@ def motor_servocontrol(servo_state):
 def motor_overridden(r, l, f):
     if f and not l and not r:
         motor_move('forward')
-        print('going forward')
+        #print('going forward')
     elif f and not l and r:
         motor_move('right')
-        print('going right')
+        #print('going right')
     elif f and l and not r:
         motor_move('left')
-        print('going left')
+        #print('going left')
     else:
         motor_move('stop')
-        print('going nowhere')
+        #print('going nowhere')
 #---------------------------------------------------------------
 #servo move should change direction when one edge is reached
 #duty cycle range may need to be re-tested
@@ -267,7 +267,7 @@ connect_wifi('EEERover','exhibition')
 while True:
     if override_mode:
         motor_overridden(or_right, or_left, or_forward)
-        print(str(or_right)+str(or_left)+str(or_forward))
+        #print(str(or_right)+str(or_left)+str(or_forward))
     else:
         #control servo
         servo_state = servo_track(servo_state)
