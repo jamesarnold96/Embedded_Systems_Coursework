@@ -67,4 +67,12 @@ video {
 	background-color: rgb(233, 243, 250);
 }
 
+.icon {
+	height:150px;
+	width:150px;
+	display: block;
+    margin: 0 auto;
+}
+
+
 
