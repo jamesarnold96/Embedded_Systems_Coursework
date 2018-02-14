@@ -18,25 +18,24 @@ def on_connect(client, userdata, flags, rc):
 
 # The callback for when a PUBLISH message is received from the server.
 def on_message(client, userdata, msg):
-    print(msg.topic+" "+str(msg.payload))
+    #print(msg.topic+" "+str(msg.payload))
     sensorData = json.loads(msg.payload.decode('utf-8'))
     # might need errror checks for this
     print(str(sensorData['brightness'])
     		+ ' at: ' + str(sensorData['time'])
     		+ ' with ' + str(sensorData['duty']))
-    print(sensorData)
+    #print(sensorData)
     # opens json file to store data (as a list)
-    if(len(sensorData) > 20):
-        with open('C:/Users/james/Documents/GitHub/Embedded_Systems_Coursework/Website/sensorData.json','r+',encoding='utf-8') as f:
-        # Read sensor data
-            fileData = json.load(f)
-            f.seek(0)
-            # Add the new data to the list
-            fileData.append(sensorData)
-            print(fileData)
-            # Write the data to the json file
-            json.dump(fileData,f)
-            # a function to collect the data and plot it in time
+    with open('C:/Users/james/Documents/GitHub/Embedded_Systems_Coursework/Website/sensorData.json','r+',encoding='utf-8') as f:
+    # Read sensor data
+        fileData = json.load(f)
+        f.seek(0)
+        # Add the new data to the list
+        fileData.append(sensorData)
+        print(fileData)
+        # Write the data to the json file
+        json.dump(fileData,f)
+        # a function to collect the data and plot it in time
 
 client = mqtt.Client()
 client.on_connect = on_connect
@@ -87,8 +86,8 @@ def displayTable():
         # loop over last 20 list items to build table
         for i in range(20):
             latest = sensorData[len(sensorData) - 1 - i]
-            tableTxt += '<tr><td>'+ latest['time'] + '</td><td>'\
-            + latest['brightness'] +  '</td><td>' + latest['duty'] + '</td></tr>'
+            tableTxt += '<tr><td>'+ str(latest['time']) + '</td><td>'\
+            + str(latest['brightness']) +  '</td><td>' + str(latest['duty']) + '</td></tr>'
         tableTxt += '</tbody></table>'
         return tableTxt    
 
