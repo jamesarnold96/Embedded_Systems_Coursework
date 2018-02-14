@@ -1,3 +1,4 @@
+
 import utime
 import ujson
 import network
@@ -53,15 +54,19 @@ def connect_wifi(name, password):
     ap_if.active(False)
     sta_if.active(True)
     sta_if.connect(name, password)
-    utime.sleep_ms (2000)
+    #utime.sleep_ms (2000)
+    utime.sleep_ms (200)
+    
 
     while(not sta_if.isconnected()):
         print ("connection to WiFi failed, retrying in 3 seconds.")
         blue_led.value(0)
-        utime.sleep_ms(1000)
+        #utime.sleep_ms(1000)
+        utime.sleep_ms(100)
         sta_if.connect(name, password)
         blue_led.value(1)
-        utime.sleep_ms(2000)
+        #utime.sleep_ms(2000)
+        utime.sleep_ms(200)
 
     print ("connection to WiFi successful.")
     blue_led.value(0)
@@ -115,10 +120,10 @@ def math_listavg(datalst):
 #---------------------------------------------------------------
 #motor move
 def motor_move(direction):
-    if direction == 'left':
-        leftm.duty(440)
+    if direction == 'right':
+        leftm.duty(480)
         rightm.duty(230)
-    elif direction == 'right':
+    elif direction == 'left':
         leftm.duty(230)
         rightm.duty(480)
     elif direction == 'forward':
@@ -129,6 +134,7 @@ def motor_move(direction):
         rightm.duty(0)
     else:
         print('MOTOR MOVE ERROR')
+    utime.sleep_ms(200)
 
 #possible states:
 #left: 21, 30, 39
@@ -136,14 +142,14 @@ def motor_move(direction):
 #right: 75, 84, 93
 def motor_servocontrol(servo_state):
     if servo_state.duty < 57:
-        motor_move('left')
-    elif servo_state.duty > 57:
         motor_move('right')
+    elif servo_state.duty > 57:
+        motor_move('left')
     elif servo_state.duty == 57:
         motor_move('forward')
     else:
         print('SERVO CONTROL ERROR')
-
+    
 def motor_overridden(r, l, f):
     if f and not l and not r:
         motor_move('forward')
@@ -162,26 +168,34 @@ def motor_overridden(r, l, f):
 #duty cycle range may need to be re-tested
 def servo_move(duty, direction):
     if direction:
-        duty += STEP_SIZE
-    else:
         duty -= STEP_SIZE
+    else:
+        duty += STEP_SIZE
     if duty < 21:
-        duty = 21
+        duty = STEP_SIZE+21
     if duty > 93:
-        duty = 93
+        duty = 93 - STEP_SIZE
     servo.duty(duty)
     return duty
 
 def servo_track(state):
+    motor_move('forward')
     if 21 <= state.duty <= 93:
-        utime.sleep_ms(200)
+        old_lux = sensor_read()
+        #utime.sleep_ms(200)
         state.duty = servo_move(state.duty, state.direction)
-        state.luxlst = math_keep10(state.luxlst, sensor_read())
         utime.sleep_ms(200)
+        #state.luxlst = math_keep10(state.luxlst, sensor_read())
+        #utime.sleep_ms(200)
+        new_lux = sensor_read()
+        
         # think of better way to set threshold to turn around
         # or just don't move if there isn't too much difference
-        if (state.luxlst[-2] - state.luxlst[-1]) >= MARGIN:
+        #if (state.luxlst[-2] - state.luxlst[-1]) >= MARGIN:
+        if new_lux <= old_lux - MARGIN :
             state.direction = not state.direction
+            state.duty = servo_move(state.duty, state.direction)
+            utime.sleep_ms(200)
         else:
             pass
         return state
@@ -276,7 +290,7 @@ while True:
         #control motor
         motor_servocontrol(servo_state)
 
-    #find average
+    #find average 
     luxavg = math_listavg(servo_state.luxlst)
 
     #check if still connected
@@ -296,5 +310,6 @@ while True:
     #read message
     client.check_msg()
 
-    utime.sleep_ms(100)
+    utime.sleep_ms(10)
 #---------------------------------------------------------------
+
