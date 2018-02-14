@@ -7,8 +7,11 @@ div {
 	/*background-color: rgba(85, 107, 47,0.1);*/
 }
 
-.col {
-    background-color: rgba(146, 167, 167,0.4);
+.details {
+    background-color: rgba(146, 167, 167,0.7);
+	p {
+		color: rgb(167,146,146);
+	}
 }
 
 h1,h2,h3,h4,h5,p,li {
@@ -33,3 +36,4 @@ h1,h2,h3,h4,h5,p,li {
 .controls {
 	display: none
 }
+
