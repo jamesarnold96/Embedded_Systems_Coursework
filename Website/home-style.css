@@ -16,8 +16,13 @@ h1,h2,h3,h4,h5,p,li {
 }
 
 .carousel-inner img {
-	width: 60%;
-	height: 60%;
+	width: 75%;
+	height: 75%;
+	display: block;
+    margin: 0 auto;
+}
+
+video {
 	display: block;
     margin: 0 auto;
 }
@@ -38,5 +43,16 @@ h1,h2,h3,h4,h5,p,li {
 	background-color: rgba(108, 112, 111, 0.7);
 }
 
+.des {
+	padding-left:50px;
+	padding-right:50px;
+}
+
+.card {
+	padding:top:20px;
+	height:600px;
+	width:350px;
+	background-color: rgb(233, 243, 250);
+}
 
 

@@ -106,6 +106,6 @@ def display_page(filename):
     return static_file(filename,root='C:/Users/james/Documents/GitHub/Embedded_Systems_Coursework/Website')
 
 # run program in 'localhost', for testing
-client.loop_start()
+#client.loop_start()
 run(host='localhost', port=8080, debug=True)
-client.loop_stop()
+#client.loop_stop()
