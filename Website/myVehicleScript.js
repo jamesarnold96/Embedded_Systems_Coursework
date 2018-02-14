@@ -2,6 +2,9 @@ var blueState = false;
 var redState = false;;
 var overrideState = false;
 var steerState = false;
+var up = false;
+var right = false;
+var left = false;
 
 $(document).ready(function(){
 	// Hides controls, as the the "override" instructino hasn't been made yet	
@@ -37,26 +40,31 @@ $(document).ready(function(){
 	// Detects arrow key presses
 	$(document).keydown(function(event){
 		if(steerState){
+      event.preventDefault(); // prevent the default action (scroll / move caret)
 			switch(event.which){
 				case 37: // left
-				$.get("/control?control=left&value=true")
+        if(!left){
+          $.get("/control?control=left&value=true");
+        }
+        left = true;
 				break;
 				
 				case 38: // up
-				$.get("/control?control=up&value=true")
+        if(!up){
+          $.get("/control?control=up&value=true");
+        }
+        up = true;
 				break;
 				
 				case 39: // right
-				$.get("/control?control=up&value=true")
-				break;
-				
-				case 40: // down
-				$.get("/control?control=down&value=true")
+        if(!right){
+          $.get("/control?control=right&value=true")
+        }
+        right = true;
 				break;
 				
 				default: break;
 			}
-			event.preventDefault(); // prevent the default action (scroll / move caret)
 		}
 	})
 	
@@ -64,19 +72,24 @@ $(document).ready(function(){
 		if(steerState){
 			switch(event.which){
 				case 37: // left
-				$.get("/control?control=left&value=false")
+        if(left){
+          $.get("/control?control=left&value=false")
+        }
+        left = false;
 				break;
 				
 				case 38: // up
-				$.get("/control?control=up&value=false")
-				break;
+        if(up){
+          $.get("/control?control=up&value=false")
+        }
+        up = false;
+        break;
 				
 				case 39: // right
-				$.get("/control?control=right&value=false")
-				break;
-				
-				case 40: // down
-				$.get("/control?control=down&value=false")
+        if(right){
+          $.get("/control?control=right&value=false")
+        }
+        right = false;
 				break;
 				
 				default: break;

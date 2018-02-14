@@ -7,6 +7,8 @@ import paho.mqtt.client as mqtt
 import json
 import time
 
+sensorData = []
+
 # The callback for when the client receives a CONNACK response from the server.
 def on_connect(client, userdata, flags, rc):
     print("Connected with result code "+str(rc))
@@ -17,29 +19,33 @@ def on_connect(client, userdata, flags, rc):
 
 # The callback for when a PUBLISH message is received from the server.
 def on_message(client, userdata, msg):
+    global sensorData
     print(msg.topic+" "+str(msg.payload))
     data = json.loads(msg.payload.decode('utf-8'))
     # might need errror checks for this
     print(str(data['brightness'])
     		+ ' at: ' + str(data['time'])
     		+ ' with ' + str(data['duty']))
+    sensorData.append(data)
+    print(sensorData)
     # opens json file to store data (as a list)
-    with open('/testing/sensorData.json') as f:
+    if(len(sensorData) > 20):
+        with open('C:/Users/james/Documents/GitHub/Embedded_Systems_Coursework/Website/sensorData.json','r+',encoding='utf-8') as f:
         # Read sensor data
-        sensorData = json.loads(f.read())
-        # Add the new data to the list
-        sensorData.append(data)
-        # Write the data to the json file
-        f.write(json.dumps(sensorData))
-    # a function to collect the data and plot it in time
-
+            fileData = json.load(f)
+            # Add the new data to the list
+            fileData.extend(sensorData)
+            print(fileData)
+            # Write the data to the json file
+            json.dump(fileData,f)
+            # a function to collect the data and plot it in time
+            sensorData = []
 
 client = mqtt.Client()
 client.on_connect = on_connect
 client.on_message = on_message
 
 client.connect("192.168.0.10", 1883)
-client.publish('esys/JEDI/Server/', 'Connected')
 
 override_state = False;
 
@@ -68,7 +74,7 @@ def getData():
 # Displays a table of the last 20 data entries
 @get('/table')
 def displayTable():
-    with open('/testing/.json') as f:
+    with open('C:/Users/james/Documents/GitHub/Embedded_Systems_Coursework/Website/sensorData.json','r+') as f:
         # Read sensor data
         sensorData = json.loads(f.read())
         tableTxt = """
@@ -83,21 +89,23 @@ def displayTable():
             <tbody>"""
         # loop over last 20 list items to build table
         for i in range(20):
-            latest = sensorData[len(sensorData) - i]
+            latest = sensorData[len(sensorData) - 1 - i]
             tableTxt += '<tr><td>'+ latest['time'] + '</td><td>'\
             + latest['brightness'] +  '</td><td>' + latest['duty'] + '</td></tr>'
         tableTxt += '</tbody></table>'
         return tableTxt    
 
 # directs a root request to the home page
-@route('/testing')
+@route('/')
 def home_page():
     return static_file('home.html',root='C:/Users/james/Documents/GitHub/Embedded_Systems_Coursework/Website')
 
 # loads html files for display
-@route('/testing/<filename>')
+@route('/<filename>')
 def display_page(filename):
     return static_file(filename,root='C:/Users/james/Documents/GitHub/Embedded_Systems_Coursework/Website')
 
 # run program in 'localhost', for testing
+client.loop_start()
 run(host='localhost', port=8080, debug=True)
+client.loop_stop()
