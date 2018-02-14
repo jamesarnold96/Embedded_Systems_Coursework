@@ -43,6 +43,10 @@ $(document).ready(function(){
 			$(".dataTable").html(data);
 		})			
 	})
+	// Detects document closing (to remove override)
+	$(window).on("beforeunload", function(){
+		$.get("/control?control=override&value=false");
+	});
 	// Detects arrow key presses
 	$(document).keydown(function(event){
 		if(steerState){
