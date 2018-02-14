@@ -3,15 +3,12 @@ body {
 }
 
 div {
-	margin-bottom:60px;
+	padding-bottom:60px;
 	/*background-color: rgba(85, 107, 47,0.1);*/
 }
 
 .details {
     background-color: rgba(146, 167, 167,0.7);
-	p {
-		color: rgb(167,146,146);
-	}
 }
 
 h1,h2,h3,h4,h5,p,li {
@@ -19,8 +16,8 @@ h1,h2,h3,h4,h5,p,li {
 }
 
 .carousel-inner img {
-	width: 70%;
-	height: 70%;
+	width: 60%;
+	height: 60%;
 	display: block;
     margin: 0 auto;
 }
@@ -34,6 +31,10 @@ h1,h2,h3,h4,h5,p,li {
 }
 
 .controls {
-	display: none
+	display: none;
+}
+
+.data_area {
+	background-color: rgba(108, 112, 111, 0.7);
 }
 
