@@ -24,6 +24,11 @@ video {
     margin: 0 auto;
 }
 
+#group_img {
+	display: block;
+    margin: 0 auto;
+}
+
 .carousel-control-prev,.carousel-control-next {
 	color: azure;
 }
@@ -49,19 +54,17 @@ video {
 	padding-right:50px;
 }
 
-.card {
+.features {
 	padding:top:20px;
 	height:600px;
 	width:350px;
 	background-color: rgb(233, 243, 250);
 }
 
-#bug_front_close {
-	width:50%;
-	height:50%;
+.members {
+	padding:top:20px;
+	width:350px;
+	background-color: rgb(233, 243, 250);
 }
 
-#bug_front_far {
-	width:50%;
-	height:50%;
-}
+

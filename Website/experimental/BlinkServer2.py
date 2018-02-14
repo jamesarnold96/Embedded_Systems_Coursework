@@ -74,7 +74,7 @@ def displayTable():
         # Read sensor data
         sensorData = json.loads(f.read())
         tableTxt = """
-          <table class="table table-dark table-striped">
+          <table class="table table-dark table-striped" style="padding-top:50px">
             <thead>
               <tr>
                 <th>Time</th>
