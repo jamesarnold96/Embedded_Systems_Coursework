@@ -4,7 +4,6 @@ body {
 
 div {
 	padding-bottom:30px;
-	/*background-color: rgba(85, 107, 47,0.1);*/
 }
 
 .details {
@@ -16,8 +15,6 @@ h1,h2,h3,h4,h5,p,li {
 }
 
 .carousel-inner img {
-	width: 75%;
-	height: 75%;
 	display: block;
     margin: 0 auto;
 }
@@ -43,6 +40,10 @@ video {
 	background-color: rgba(108, 112, 111, 0.7);
 }
 
+.colour3 {
+	background-color: rgba(146, 167, 184, 0.7);
+}
+
 .des {
 	padding-left:50px;
 	padding-right:50px;
@@ -55,4 +56,12 @@ video {
 	background-color: rgb(233, 243, 250);
 }
 
+#bug_front_close {
+	width:50%;
+	height:50%;
+}
 
+#bug_front_far {
+	width:50%;
+	height:50%;
+}

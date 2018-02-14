@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <title>NeZOOMi</title>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
-  <link rel="stylesheet" href="home-style.css">
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+	<title>NeZOOMi</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+	<link rel="stylesheet" href="home-style.css">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
 </head>
 <body style="height:1500px">
 
@@ -16,14 +16,13 @@
   <a class="navbar-brand" href="home.html">Internet of Good Brains</a>
   <ul class="navbar-nav">
     <li class="nav-item">
-      <a class="nav-link" href="home.html">Home</a>
+		<a class="nav-link" href="home.html">Home</a>
     </li>
     <li class="nav-item">
-      <a class="nav-link" href="myvehicle.html">My Vehicle</a>
+		<a class="nav-link" href="myvehicle.html">My Vehicle</a>
     </li>
 	<li class="nav-item">
-	  <a class="nav-link" href="aboutus.html">About Us</a> 
-	
+		<a class="nav-link" href="aboutus.html">About Us</a> 	
 	<li class="nav-item">
 	  <a class="nav-link" href="whyus.html">Why NeZOOMi?</a>
   </ul>
@@ -48,11 +47,51 @@
 	other, more convoluted control systems for this type of vehicle 
 	on the market. The vehicle can also perform other associated functions
 	such as cleaning, based on customer specifications. Control is via
-	Wi-Fi, so it can be monitored at a safe distance.</p>
-    <video width="640" height="520" controls autoplay>
-    <source src="bug_video.mp4" type="video/mp4">
-    Your browser does not support the video tag.
-    </video>
+	Wi-Fi, so it can be monitored at a safe distance.</p>	
+	<div id="demo" class="carousel slide" data-ride="carousel">
+
+		<!-- Indicators -->
+		<ul class="carousel-indicators">
+			<li data-target="#demo" data-slide-to="0" class="active"></li>
+			<li data-target="#demo" data-slide-to="1"></li>
+			<li data-target="#demo" data-slide-to="2"></li>
+			<li data-target="#demo" data-slide-to="3"></li>
+			<li data-target="#demo" data-slide-to="4"></li>
+			<li data-target="#demo" data-slide-to="5"></li>
+	    </ul>
+
+	    <!-- The slideshow -->
+	    <div class="carousel-inner">
+			<div class="carousel-item active">
+				<video width="640" height="520" controls autoplay>
+					<source src="bug_video.mp4" type="video/mp4">
+					Your browser does not support the video tag.
+				</video>
+			</div>
+			<div class="carousel-item">
+				<img src="bug_front_close.jpg" id="bug_front_close" alt="Front of Bug" class="w-75">
+			</div>
+			<div class="carousel-item">
+				<img src="bug_front_far.jpg" alt="Front of Bug">
+			</div>
+			<div class="carousel-item">
+				<img src="bug_side1.jpg" alt="Side of Bug">
+			</div>
+			<div class="carousel-item">
+				<img src="bug_side2.jpg" alt="Side of Bug">
+			</div>
+			<div class="carousel-item">
+				<img src="bug_clean2.jpg" alt="Bug Cleaning Mechanism">
+			</div>
+	    </div>
+	<!-- Left and right controls -->
+	<a class="carousel-control-prev" href="#demo" data-slide="prev">
+		<span class="carousel-control-prev-icon"></span>
+	</a>
+	<a class="carousel-control-next" href="#demo" data-slide="next">
+		<span class="carousel-control-next-icon"></span>
+	</a>		
+</div>
 </div>
 
 <div class="container-fluid colour2" style="padding-top:50px">

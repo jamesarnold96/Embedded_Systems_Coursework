@@ -28,8 +28,10 @@ $(document).ready(function(){
 		$.get("/control?control=redLED&value=" + redState)
 	});	
 	$("#btn_servo").click(function(){
+		value=$("#servo").val();
 		// Posts button state to server
-		$.get("/control?control=servo&value=")
+		$.get("/control?control=servo&value=" + value);
+		$("#servo").val("");
 	});	
 	$("#btn_steer").click(function(){
 		$(this).toggleClass("active");

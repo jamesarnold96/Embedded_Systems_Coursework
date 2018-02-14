@@ -7,7 +7,6 @@ import paho.mqtt.client as mqtt
 import json
 import time
 
-sensorData = []
 
 # The callback for when the client receives a CONNACK response from the server.
 def on_connect(client, userdata, flags, rc):
@@ -19,27 +18,25 @@ def on_connect(client, userdata, flags, rc):
 
 # The callback for when a PUBLISH message is received from the server.
 def on_message(client, userdata, msg):
-    global sensorData
     print(msg.topic+" "+str(msg.payload))
-    data = json.loads(msg.payload.decode('utf-8'))
+    sensorData = json.loads(msg.payload.decode('utf-8'))
     # might need errror checks for this
-    print(str(data['brightness'])
-    		+ ' at: ' + str(data['time'])
-    		+ ' with ' + str(data['duty']))
-    sensorData.append(data)
+    print(str(sensorData['brightness'])
+    		+ ' at: ' + str(sensorData['time'])
+    		+ ' with ' + str(sensorData['duty']))
     print(sensorData)
     # opens json file to store data (as a list)
     if(len(sensorData) > 20):
         with open('C:/Users/james/Documents/GitHub/Embedded_Systems_Coursework/Website/sensorData.json','r+',encoding='utf-8') as f:
         # Read sensor data
             fileData = json.load(f)
+            f.seek(0)
             # Add the new data to the list
-            fileData.extend(sensorData)
+            fileData.append(sensorData)
             print(fileData)
             # Write the data to the json file
             json.dump(fileData,f)
             # a function to collect the data and plot it in time
-            sensorData = []
 
 client = mqtt.Client()
 client.on_connect = on_connect
@@ -106,6 +103,6 @@ def display_page(filename):
     return static_file(filename,root='C:/Users/james/Documents/GitHub/Embedded_Systems_Coursework/Website')
 
 # run program in 'localhost', for testing
-#client.loop_start()
+client.loop_start()
 run(host='localhost', port=8080, debug=True)
-#client.loop_stop()
+client.loop_stop()
