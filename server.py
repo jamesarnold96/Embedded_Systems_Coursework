@@ -8,7 +8,7 @@ def on_connect(client, userdata, flags, rc):
 
     # Subscribing in on_connect() means that if we lose the connection and
     # reconnect then subscriptions will be renewed.
-    client.subscribe("esys/JEDI/Server")
+    client.subscribe("esys/JEDI/#")
 
 # The callback for when a PUBLISH message is received from the server.
 def on_message(client, userdata, msg):
@@ -40,7 +40,7 @@ while (rawin != 'END'):
     va = input("Please enter the value:")
     payload = json.dumps({'name': 'Dai lo',
                         'inst':rawin,
-                        'value':va})
+                        'state':va})
     client.publish('esys/JEDI/Server/', bytes(payload,'utf-8'))
 
 client.loop_stop(force=False)
