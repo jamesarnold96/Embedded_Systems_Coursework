@@ -1,4 +1,3 @@
-#!C:\Users\james\Documents\Python\WinPython-64bit-3.6.3.0Qt5\python-3.6.3.amd64\python.exe
  
 # Uses Bottle to handle communication with the website
 from bottle import get, request, static_file, run, route
@@ -27,7 +26,7 @@ def on_message(client, userdata, msg):
     print(sensorData)
     # opens json file to store data (as a list)
     if(len(sensorData) > 20):
-        with open('C:/Users/james/Documents/GitHub/Embedded_Systems_Coursework/Website/sensorData.json','r+',encoding='utf-8') as f:
+        with open('D:/GitHub/Embedded_Systems_Coursework/Website/sensorData.json','r+',encoding='utf-8') as f:
         # Read sensor data
             fileData = json.load(f)
             f.seek(0)
@@ -71,7 +70,7 @@ def getData():
 # Displays a table of the last 20 data entries
 @get('/table')
 def displayTable():
-    with open('C:/Users/james/Documents/GitHub/Embedded_Systems_Coursework/Website/sensorData.json','r+') as f:
+    with open('D:/GitHub/Embedded_Systems_Coursework/Website/sensorData.json','r+') as f:
         # Read sensor data
         sensorData = json.loads(f.read())
         tableTxt = """
@@ -95,12 +94,12 @@ def displayTable():
 # directs a root request to the home page
 @route('/')
 def home_page():
-    return static_file('home.html',root='C:/Users/james/Documents/GitHub/Embedded_Systems_Coursework/Website')
+    return static_file('home.html',root='D:/GitHub/Embedded_Systems_Coursework/Website')
 
 # loads html files for display
 @route('/<filename>')
 def display_page(filename):
-    return static_file(filename,root='C:/Users/james/Documents/GitHub/Embedded_Systems_Coursework/Website')
+    return static_file(filename,root='D:/GitHub/Embedded_Systems_Coursework/Website')
 
 # run program in 'localhost', for testing
 client.loop_start()
