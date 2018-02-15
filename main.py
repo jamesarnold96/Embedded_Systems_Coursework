@@ -269,7 +269,7 @@ def msg_callback(topic, msg):
         else:
             pass
     elif k == 'servo' and override_mode:
-        servo.duty(v)
+        servo.duty(int(v))
     else:
         print('unrecognised instruction: '+str(k))
 
