@@ -1,14 +1,14 @@
 # Embedded_Systems_Coursework
 
-## Workload
-* Light maximising algorithm
-  * Perturb and disturb algorithm to track point with maximum brightness
+## This Repository Contains:
+* main.py for controlling the bug
 
-* Internet connection
-  * Send data collected online
+* server.py for running the web server
 
-* User control
-  * User can remotely control the product
+* All website files are in their own folder
+  * home.html is the home page (containing links to the other pages)
+  * myvehicle.html (along with myVehicleScript.js) handles the manual control of the bug, sending data to server.py
 
-* Website
-  * Marketing website
+* Screenshot showing displaying of data on the webpage
+  * Actual data is stored in sensorData.json, in the website folder
+ 
