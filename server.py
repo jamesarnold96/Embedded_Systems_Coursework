@@ -1,8 +1,14 @@
-#!C:\Users\james\Documents\Python\WinPython-64bit-3.6.3.0Qt5\python-3.6.3.amd64\python.exe
- 
+"""Python server code for processing and storing sensor data for the NeZOOMi
+tunnel and pipe cleaning vehicle prototype. This code also allows the vehicle 
+to be controlled via the website, along with the display of sensor data. To access
+the website, type localhost:8080 into a web browser whilst this code is running.
+The file paths in lines 35, 81, 106 and 112 will have to be changed to ones 
+corresponding to the project folder on your machine,"""
+
 # Uses Bottle to handle communication with the website
 from bottle import get, request, static_file, run, route
 
+# MQTT libary for communicating with the bug
 import paho.mqtt.client as mqtt
 import json
 import time
@@ -29,6 +35,7 @@ def on_message(client, userdata, msg):
     with open('C:/Users/james/Documents/GitHub/Embedded_Systems_Coursework/Website/sensorData.json','r+',encoding='utf-8') as f:
     # Read sensor data
         fileData = json.load(f)
+        # moves pointer to beginning of .json file to ensure contents are overwritten
         f.seek(0)
         # Add the new data to the list
         fileData.append(sensorData)
@@ -43,9 +50,10 @@ client.on_message = on_message
 
 client.connect("192.168.0.10", 1883)
 
+# Only send instructions if "override" instruction has been sent
 override_state = False;
 
-# main program
+# send control instructions to bug using MQTT
 def upload(controlIns, controlData):
     print("Connection Successful!")
     payload = json.dumps({'inst':controlIns,'state':controlData})
@@ -74,13 +82,13 @@ def displayTable():
         # Read sensor data
         sensorData = json.loads(f.read())
         tableTxt = """
-          <table class="table table-dark table-striped" style="padding-top:50px">
+        <table class="table table-dark table-striped" style="padding-top:50px">
             <thead>
-              <tr>
-                <th>Time</th>
-                <th>Brightness(Lux)</th>
-                <th>Duty</th>
-              </tr>
+                <tr>
+                    <th>Time</th>
+                    <th>Brightness(Lux)</th>
+                    <th>Duty</th>
+                </tr>
             </thead>
             <tbody>"""
         # loop over last 20 list items to build table
@@ -92,11 +100,13 @@ def displayTable():
         return tableTxt    
 
 # directs a root request to the home page
+# NB This path will have to be changed to the relevant location on your computer
 @route('/')
 def home_page():
     return static_file('home.html',root='C:/Users/james/Documents/GitHub/Embedded_Systems_Coursework/Website')
 
-# loads html files for display
+# loads files from the required for display
+# NB This path will have to be changed to the relevant location on your computer
 @route('/<filename>')
 def display_page(filename):
     return static_file(filename,root='C:/Users/james/Documents/GitHub/Embedded_Systems_Coursework/Website')
