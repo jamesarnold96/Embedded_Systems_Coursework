@@ -1,4 +1,4 @@
-# Embedded_Systems_Coursework
+# NeZOOMi (Internet of Good Brains)
 
 ## This Repository Contains:
 * main.py for controlling the bug
