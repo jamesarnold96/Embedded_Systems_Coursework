@@ -32,7 +32,7 @@ def on_message(client, userdata, msg):
         f.seek(0)
         # Add the new data to the list
         fileData.append(sensorData)
-        print(fileData)
+        #print(fileData)
         # Write the data to the json file
         json.dump(fileData,f)
         # a function to collect the data and plot it in time
