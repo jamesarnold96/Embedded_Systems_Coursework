@@ -48,6 +48,9 @@ video {
 .colour3 {
 	background-color: rgba(146, 167, 184, 1);
 }
+.colour3t {
+	background-color: rgba(146, 167, 184, 0.7);
+}
 
 .des {
 	padding-left:50px;
@@ -63,13 +66,29 @@ video {
 
 .members {
 	padding:top:20px;
-	width:350px;
 	background-color: rgb(233, 243, 250);
+	width:250px;
+	height:400px;
+}
+.img_members {
+	width:250px;
+	height:250px;
 }
 
 .icon {
 	height:150px;
 	width:150px;
+	display: block;
+    margin: 0 auto;
+}
+
+.logo {
+	height:100px;
+}
+
+#group_img {
+	width:640px;
+	height:480px;
 	display: block;
     margin: 0 auto;
 }
