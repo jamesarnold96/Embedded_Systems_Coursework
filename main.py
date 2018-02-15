@@ -4,7 +4,7 @@ import network
 import machine
 from umqtt.simple import MQTTClient
 
-#---------------------------------------------------------------
+#--------------------------neZOOMi-----------------------------
 #declarations
 #communication
 i2c = machine.I2C(scl=machine.Pin(5), sda=machine.Pin(4), freq=100000)
@@ -44,7 +44,7 @@ class State(object):
         self.luxlst = luxlst
     #pretty printing
     def __str__(self):
-        if direction:
+        if self.direction:
             dir = 'Right '
         else:
             dir = 'Left '
@@ -117,6 +117,7 @@ def math_listavg(datalst):
     return sum(datalst) / len(datalst)
 #---------------------------------------------------------------
 #motor move
+#values found empirically, on smooth surface
 def motor_move(direction):
     if direction == 'right':
         leftm.duty(430)
@@ -150,6 +151,8 @@ def motor_servocontrol(servo_state):
     else:
         print('SERVO CONTROL ERROR')
     
+#three boolean values corresponds to arrow key presses from website
+#pressing down sets to true, key release sets to false by msg_set_or
 def motor_overridden(r, l, f):
     if f and not l and not r:
         motor_move('forward')
@@ -177,6 +180,8 @@ def servo_move(duty, direction):
     servo.duty(duty)
     return duty
 
+#Decision making in autonomous mode, uses 'perturb and observe'
+#Values determined empirically
 def servo_track(state):
     motor_move('forward')
     if 21 <= state.duty <= 93:
@@ -240,12 +245,19 @@ def msg_set_or(direction, value):
     else:
         pass
 
+#---------------------------------------------------------------
+# note on I/O with server:
+# neZOOMi is subscribed to esys/JEDI/Server
+# expects messages in JSON with a 'inst' and a 'state' string
+# LED control only needs 'redLED' 'true/false'
+# motor and servo controls requires setting override to true
+#---------------------------------------------------------------
 def msg_callback(topic, msg):
     print(str(msg))
     data = ujson.loads(msg.decode('utf-8'))
     k = data['inst']
     v = data['state']
-    #could add authorisation by name field here
+    #could add authorisation by name field here if needed
     #if data['name'] == 'Dai lo':
     if k == 'redLED':
         msg_blink(v)
@@ -279,19 +291,21 @@ connect_wifi('EEERover','exhibition')
 while True:
     if override_mode:
         motor_overridden(or_right, or_left, or_forward)
-        print(str(or_right)+str(or_left)+str(or_forward))
+        #print(str(or_right)+str(or_left)+str(or_forward))
     else:
         #control servo
         servo_state = servo_track(servo_state)
-        print(servo_state)
+        #print(servo_state)
 
         #control motor
         motor_servocontrol(servo_state)
 
-    #find average 
+    #find average
+    #useful when used with manual servo control to read
+    #average brightness in a specified direction
     luxavg = math_listavg(servo_state.luxlst)
 
-    #check if still connected
+    #check if still connected before IO through MQTT
     if (not sta_if.isconnected()):
         blue_led.value(1)
         connect_wifi('EEERover','exhibition')
@@ -300,7 +314,7 @@ while True:
     payload = ujson.dumps({'name':'neZOOMi-chan',
                             'time':utime.ticks_ms(),
                             'brightness':servo_state.luxlst[-1],
-                            'brit_list':luxlst,
+                            'brit_list':servo_state.luxlst,
                             'avglight':luxavg,
                             'direction':servo_state.direction,
                             'duty': servo_state.duty})
